@@ -86,11 +86,27 @@ def create_ics(lessons, semester_start_date):
             except UnicodeDecodeError:
                 print("ERROR!")
                 exit(6)  # 放弃python2.x了
-
             cal.add_component(event)
 
     return cal
 
+def create_exam_ics(cal, exams, semester_start_date):
+
+    for exam in exams:
+        if isinstance(exam.examDate, list): # 如果时间未确定, 不导出
+            event = Event()
+            event.add('summary', exam.courseName + '_' + exam.examType)
+            # exam start time
+            examStartTime = datetime(exam.examDate[0], exam.examDate[1], exam.examDate[2], exam.examTime[0], exam.examTime[1], 0,  
+                                tzinfo=timezone('Asia/Shanghai'))                                                                         # examTime[0]、examTime[1] 起始时间
+            examEndTime = datetime(exam.examDate[0], exam.examDate[1], exam.examDate[2], exam.examTime[2], exam.examTime[3], 0,   
+                                tzinfo=timezone('Asia/Shanghai'))                                                                        # examTime[2]、examTime[3] 终止时间
+            event.add('dtstart', examStartTime)
+            event.add('dtend', examEndTime)
+            event.add('location', exam.examLocation)
+            event.add('description', exam.description)
+            cal.add_component(event)
+    return cal
 
 def export_ics(cal, semester_year, semester, stuID):
     filename = 'NUAAiCal-Data/NUAA-curriculum-' + semester_year + '-' + semester + '-' + stuID + '.ics'
@@ -112,13 +128,13 @@ def export_ics(cal, semester_year, semester, stuID):
             os.remove(tem_path)
 
             if is_update:
-                print('有更新的课程！')
+                print('有更新的信息！')
                 f = open(os.path.join(filename), 'wb')
                 f.write(cal.to_ical())
                 f.close()
                 print("更新的日历文件已导出到 \"" + os.path.abspath(filename) + "\"。")
             else:
-                print('没有需要更新的课程！')
+                print('没有需要更新的信息！')
                 print("原有的日历文件位置为 \"" + os.path.abspath(filename) + "\"。")
 
         else:

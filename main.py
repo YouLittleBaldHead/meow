@@ -19,7 +19,7 @@ import argparse
 from getpass import getpass
 from datetime import datetime, timedelta
 from pytz import timezone
-from generateICS import create_ics, export_ics
+from generateICS import create_ics, export_ics, create_exam_ics
 from getClassSchedule import *
 from generateXLSX import *
 from settings import VERSION, DEBUG
@@ -69,7 +69,7 @@ if __name__ == "__main__":
             choice = args.choice
 
         if stuID == '' or stuPwd == '':  # 若学号密码为空则在控制台获取
-            print('Please login!')
+            print('## Please login!')
             stuID = input('Please input your student ID:')
             # stuPwd = input('Please input your password:')
             stuPwd = getpass('Please input your password:(不会回显，输入完成<ENTER>即可)')
@@ -80,24 +80,30 @@ if __name__ == "__main__":
                 else:
                     print('ERROR! Choice shoule be `0` or `1`!')
 
-        temp_time = time.time()  # 计个时看看
         name = aao_login(stuID, stuPwd, retry_cnt)
-        print('\nMeow~下面开始获取{}课表啦！\n'.format({0: '个人', 1: '班级'}.get(choice)))
+        temp_time = time.time()  # 计个时看看
+        print('\n## Meow~下面开始获取{}课表啦！\n'.format({0: '个人', 1: '班级'}.get(choice)))    
         courseTable = getCourseTable(choice=choice)
         list_lessonObj = parseCourseTable(courseTable)
-        print('课表获取完成，下面开始生成iCal日历文件啦！')
+        print('## 下面开始获取考试信息啦！\n')
+        examSchedule = getExamSchedule()
+        list_examObj = parseExamSchedule(examSchedule)
+        
+        print('## 信息获取完成，下面开始生成iCal日历文件啦！')
         cal = create_ics(list_lessonObj, semester_start_date)
-        print('日历生成完成，下面开始导出啦！\n')
+        cal = create_exam_ics(cal, list_examObj, semester_start_date)
+        print('## 日历生成完成，下面开始导出啦！\n')
         export_ics(cal, semester_year, semester, stuID)  # Export `.ics` file
         if not args.notxt:  # 若命令行参数含`--notxt`则不导出
             exportCourseTable(list_lessonObj, semester_year, semester, stuID)  # Export `.txt` file
         if not args.noxlsx:  # 若命令行参数含`--noxlsx`则不导出
-            print('\n开始生成xlsx表格文件！ ')
+            print('\n## 开始生成xlsx表格文件！ ')
             xlsx = create_xls(list_lessonObj, semester_year, semester, stuID)
-            print('xlsx文件生成完成，开始导出！')
+            print('## xlsx文件生成完成，开始导出！')
             export_xls(xlsx, semester_year, semester, stuID)  # Export `.xlsx` file
-        print('\n导出完成，累计用时：', time.time() - temp_time, 's')
+        print('\n## 导出完成，累计用时：', time.time() - temp_time, 's')
         print("Thanks for your use! 欢迎来GitHub上点个Star呢！")
+        
     except Exception as e:
         print("ERROR! 欢迎在GitHub上提出issue & Pull Request!")
         print(e)

@@ -18,6 +18,7 @@ from PIL import Image
 from io import BytesIO
 # from pytesseract import image_to_string
 from lessonObj import Lesson
+from examObj import Exam
 
 session = requests.Session()
 UAs = [
@@ -235,6 +236,39 @@ def parseCourseTable(courseTable):
         print()
     return list_lessonObj
 
+def getExamSchedule():
+    """
+    获取考试安排
+    :return:Ans_list: {list} 考试安排列表
+    """
+    time.sleep(0.5) 
+    examSchedule = session.get(host + r'/eams/examSearchForStd!examTable.action') 
+
+    soup = BeautifulSoup(examSchedule.text.encode('utf-8'), 'lxml')
+    '''exam Schedule'''
+    exam_Schedule_Text = soup.select('tbody > tr')
+    # print(exam_Schedule_Text)
+    Ans_list = []
+    for single_exam_Schedule in exam_Schedule_Text:
+        tmp = []
+        single_exam_Schedule = single_exam_Schedule.find_all('td')
+        for i in single_exam_Schedule:
+            tmp.append(i.get_text().strip())
+        Ans_list.append(tmp)
+    return Ans_list
+
+def parseExamSchedule(exams):
+    '''
+    解析考试列表
+    :return: examObj
+    '''
+    list_examObj = [] 
+    for exam in exams:
+        temp_ExamObj=Exam(exam)
+        print(temp_ExamObj.str_for_print)  # print the exam info
+        list_examObj.append(Exam(exam))
+    return list_examObj
+    # return map(Exam,exams)
 
 def exportCourseTable(list_lessonObj, semester_year, semester, stuID):
     """
