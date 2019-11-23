@@ -22,17 +22,15 @@ class Exam:
         list_inter = list(re.findall(r'(\d*)-(\d*)-(\d*)', exam[3])[0])
 
         if not list_inter:
-            self.examDate = exam[3] # 没有的话是字符串直接赋值
+            self.examDate = exam[3]  # 没有的话是字符串直接赋值
             self.examTime = exam[4]
-        else: 
+        else:
             self.examDate = list_inter
-            list_inter = re.findall(r'(\d*):(\d*)~(\d*):(\d*)', exam[4]) 
+            list_inter = re.findall(r'(\d*):(\d*)~(\d*):(\d*)', exam[4])
             self.examTime = list(list_inter[0])
             self.examDate = list(map(int, self.examDate))
             self.examTime = list(map(int, self.examTime))
-            
-        self.description = self.examStatue + '\n' + self.others
-        self.str_for_print = self.courseName + '_' + self.examType + '\n' + exam[3] + '\n' + exam[4] + '\n' + self.description
-    
-    
 
+        self.description = '状态：' + self.examStatue + '\n' + self.others
+        self.str_for_print = self.courseName + '_' + self.examType + '\n' + exam[3] + ' ' + exam[4] \
+                             + '\n' + self.examLocation + '\n' + self.description

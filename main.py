@@ -53,6 +53,7 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--pwd", help="Student password 教务处密码", type=str)
     parser.add_argument("-c", "--choice", help="Input `0` for personal curriculum(default), `1` for class curriculum.\
                         输入`0`获取个人课表(无此参数默认为个人课表)，输入`1`获取班级课表", type=int, choices=[0, 1])  # , default=0
+    parser.add_argument("--noexam", help="Don't export exam schedule. 加入此选项则不导出考试安排", action="store_true")
     parser.add_argument("--notxt", help="Don't export `.txt` file. 加入此选项则不导出`.txt`文件", action="store_true")
     parser.add_argument("--noxlsx", help="Don't export `.xlsx` file. 加入此选项则不导出`.xlsx`表格", action="store_true")
 
@@ -82,20 +83,23 @@ if __name__ == "__main__":
 
         name = aao_login(stuID, stuPwd, retry_cnt)
         temp_time = time.time()  # 计个时看看
-        print('\n## Meow~下面开始获取{}课表啦！\n'.format({0: '个人', 1: '班级'}.get(choice)))    
+        print('\n## Meow~下面开始获取{}课表啦！\n'.format({0: '个人', 1: '班级'}.get(choice)))
         courseTable = getCourseTable(choice=choice)
         list_lessonObj = parseCourseTable(courseTable)
+
         print('## 下面开始获取考试信息啦！\n')
         examSchedule = getExamSchedule()
         list_examObj = parseExamSchedule(examSchedule)
-        
+
         print('## 信息获取完成，下面开始生成iCal日历文件啦！')
         cal = create_ics(list_lessonObj, semester_start_date)
-        cal = create_exam_ics(cal, list_examObj, semester_start_date)
+        if not args.noexam:  # 若命令行参数含`--noexam`则不导出
+            cal = create_exam_ics(cal, list_examObj)
+
         print('## 日历生成完成，下面开始导出啦！\n')
         export_ics(cal, semester_year, semester, stuID)  # Export `.ics` file
         if not args.notxt:  # 若命令行参数含`--notxt`则不导出
-            exportCourseTable(list_lessonObj, semester_year, semester, stuID)  # Export `.txt` file
+            exportCourseTable(list_lessonObj, list_examObj, semester_year, semester, stuID)  # Export `.txt` file
         if not args.noxlsx:  # 若命令行参数含`--noxlsx`则不导出
             print('\n## 开始生成xlsx表格文件！ ')
             xlsx = create_xls(list_lessonObj, semester_year, semester, stuID)
@@ -103,7 +107,7 @@ if __name__ == "__main__":
             export_xls(xlsx, semester_year, semester, stuID)  # Export `.xlsx` file
         print('\n## 导出完成，累计用时：', time.time() - temp_time, 's')
         print("Thanks for your use! 欢迎来GitHub上点个Star呢！")
-        
+
     except Exception as e:
         print("ERROR! 欢迎在GitHub上提出issue & Pull Request!")
         print(e)

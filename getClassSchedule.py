@@ -236,13 +236,14 @@ def parseCourseTable(courseTable):
         print()
     return list_lessonObj
 
+
 def getExamSchedule():
     """
     获取考试安排
     :return:Ans_list: {list} 考试安排列表
     """
-    time.sleep(0.5) 
-    examSchedule = session.get(host + r'/eams/examSearchForStd!examTable.action') 
+    time.sleep(0.5)
+    examSchedule = session.get(host + r'/eams/examSearchForStd!examTable.action')
 
     soup = BeautifulSoup(examSchedule.text.encode('utf-8'), 'lxml')
     '''exam Schedule'''
@@ -257,23 +258,29 @@ def getExamSchedule():
         Ans_list.append(tmp)
     return Ans_list
 
+
 def parseExamSchedule(exams):
     '''
     解析考试列表
     :return: examObj
     '''
-    list_examObj = [] 
-    for exam in exams:
-        temp_ExamObj=Exam(exam)
-        print(temp_ExamObj.str_for_print)  # print the exam info
-        list_examObj.append(Exam(exam))
+    list_examObj = []
+    if len(exams) > 0:
+        for exam in exams:
+            temp_ExamObj = Exam(exam)
+            print(temp_ExamObj.str_for_print)  # print the exam info
+            list_examObj.append(Exam(exam))
+    else:
+        print('暂无考试安排！')
     return list_examObj
     # return map(Exam,exams)
 
-def exportCourseTable(list_lessonObj, semester_year, semester, stuID):
+
+def exportCourseTable(list_lessonObj, list_examObj, semester_year, semester, stuID):
     """
     导出课表到文件
     :param list_lessonObj: {list}Lesson类组成的列表，包含所有课表信息
+    :param list_examObj: {list}Exam类组成的列表，包含考试信息
     :param semester_year: {str}学年
     :param semester: {str}学期 '1'或'2'
     :param stuID {str}学号
@@ -288,6 +295,11 @@ def exportCourseTable(list_lessonObj, semester_year, semester, stuID):
                 output_file.write(lessonObj.str_for_print)
                 output_file.write('\n\n')
                 course_cnt += 1
+            if len(list_examObj) > 0:
+                output_file.write('---------以下为考试信息----------\n')
+                for examObj in list_examObj:
+                    output_file.write(examObj.str_for_print)
+                    output_file.write('\n')
         except Exception as e:
             print('ERROR! 导出课表到文件出错！')
             print(e)
