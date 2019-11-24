@@ -48,7 +48,7 @@ session.headers = headers
 host = r'http://aao-eas.nuaa.edu.cn'
 
 
-def aao_login(stuID, stuPwd, captcha_str, window, retry_cnt=1):
+def aao_login(stuID, stuPwd, captcha_str, retry_cnt=1):
     """
     登录新教务系统
     :param stuID: 学号
