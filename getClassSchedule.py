@@ -19,6 +19,7 @@ from io import BytesIO
 # from pytesseract import image_to_string
 from lessonObj import Lesson
 from examObj import Exam
+from captchaOCR import img_to_str
 
 session = requests.Session()
 UAs = [
@@ -77,10 +78,13 @@ def aao_login(stuID, stuPwd, retry_cnt=3):
             # logging.debug(postPwd)  # 结果是40位字符串
 
             # Captcha 验证码 # Fix Issue #13 bug, but only for Windows.
-            captcha_img = Image.open(BytesIO(captcha_resp.content))
+            temp_captcha_img = BytesIO(captcha_resp.content)
+            captcha_img = Image.open(temp_captcha_img)
             captcha_img.show()  # show the captcha
             # text = image_to_string(captcha_img)  # 前提是装了Tesseract-OCR，可以试试自动识别
             # print(text)
+
+            print(img_to_str(temp_captcha_img.getvalue()))
             captcha_str = input('Please input the captcha:')
 
             # 开始登录啦

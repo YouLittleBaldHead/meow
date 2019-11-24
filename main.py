@@ -108,9 +108,9 @@ if __name__ == "__main__":
         print('\n## 导出完成，累计用时：', time.time() - temp_time, 's')
         print("Thanks for your use! 欢迎来GitHub上点个Star呢！")
 
-    except Exception as e:
-        print("ERROR! 欢迎在GitHub上提出issue & Pull Request!")
-        print(e)
+    # except Exception as e:
+    #     print("ERROR! 欢迎在GitHub上提出issue & Pull Request!")
+    #     print(e)
     finally:
         session.cookies.clear()  # 清一下cookie
         if system_platform() == 'Windows':  # Fix Linux `sh: 1: pause: not found` bug
