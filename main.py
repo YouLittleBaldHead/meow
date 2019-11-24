@@ -8,7 +8,7 @@ Pull Requests & issues welcome!
 
 main.py  程序入口
 
-@Author: MiaoTony, ZegWe
+@Author: MiaoTony, ZegWe, Cooook, Pinyi Qian
 """
 
 import os
@@ -43,8 +43,10 @@ if __name__ == "__main__":
                                    tzinfo=timezone('Asia/Shanghai'))
 
     print("Welcome to use the NUAA_ClassSchedule script.")
-    print("Author: MiaoTony, ZegWe\nGitHub: https://github.com/miaotony/NUAA_ClassSchedule")
-    print("Version: " + VERSION + '\n')
+    # print("Author: MiaoTony, ZegWe, Cooook, Pinyi Qian\nGitHub: https://github.com/miaotony/NUAA_ClassSchedule")
+    print("Author: Tony Huang, Cooook Zhang, Pinyi Qian\n")
+
+    # print("Version: " + VERSION + '\n')
 
     # Parse args 命令行参数解析
     parser = argparse.ArgumentParser()
@@ -81,7 +83,16 @@ if __name__ == "__main__":
                 else:
                     print('ERROR! Choice shoule be `0` or `1`!')
 
-        name = aao_login(stuID, stuPwd, retry_cnt)
+        # Captcha 验证码 # Fix Issue #13 bug, but only for Windows & MacOS.
+        captcha_resp = session.get(host + '/eams/captcha/image.action')  # Captcha 验证码图片
+        captcha_img = Image.open(BytesIO(captcha_resp.content))
+        captcha_img.show()  # show the captcha
+
+        # text = image_to_string(captcha_img)  # 前提是装了Tesseract-OCR，可以试试自动识别
+        # print(text)
+        captcha_str = input('Please input the captcha:')
+
+        name = aao_login(stuID, stuPwd, captcha_str, retry_cnt)
         temp_time = time.time()  # 计个时看看
         print('\n## Meow~下面开始获取{}课表啦！\n'.format({0: '个人', 1: '班级'}.get(choice)))
         courseTable = getCourseTable(choice=choice)
