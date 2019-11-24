@@ -43,7 +43,8 @@ if __name__ == "__main__":
                                    tzinfo=timezone('Asia/Shanghai'))
 
     print("Welcome to use the NUAA_ClassSchedule script.")
-    # print("Author: MiaoTony, ZegWe, Cooook, Pinyi Qian\nGitHub: https://github.com/miaotony/NUAA_ClassSchedule")
+    print("Hackathon 2019 @ East China")
+    print("Team: 看什么看你个小秃头")
     print("Author: Tony Huang, Cooook Zhang, Pinyi Qian\n")
 
     # print("Version: " + VERSION + '\n')
@@ -64,6 +65,7 @@ if __name__ == "__main__":
         args = parser.parse_args()
         logging.info(args)
 
+        print('## Start login!')
         if args.id is not None:  # 命令行参数优先
             stuID = args.id
         if args.pwd is not None:
@@ -72,7 +74,6 @@ if __name__ == "__main__":
             choice = args.choice
 
         if stuID == '' or stuPwd == '':  # 若学号密码为空则在控制台获取
-            print('## Please login!')
             stuID = input('Please input your student ID:')
             # stuPwd = input('Please input your password:')
             stuPwd = getpass('Please input your password:(不会回显，输入完成<ENTER>即可)')
