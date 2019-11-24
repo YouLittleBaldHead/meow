@@ -14,7 +14,9 @@ import time
 import random
 import json
 import logging
-from PIL import Image
+import tkinter as tk
+import tkinter.ttk
+from PIL import Image, ImageTk
 from io import BytesIO
 # from pytesseract import image_to_string
 from lessonObj import Lesson
@@ -46,7 +48,7 @@ session.headers = headers
 host = r'http://aao-eas.nuaa.edu.cn'
 
 
-def aao_login(stuID, stuPwd, retry_cnt=3):
+def aao_login(stuID, stuPwd, captcha_str, window, retry_cnt=1):
     """
     登录新教务系统
     :param stuID: 学号
@@ -56,10 +58,10 @@ def aao_login(stuID, stuPwd, retry_cnt=3):
     """
     try_cnt = 1
     while try_cnt <= retry_cnt:
-        session.cookies.clear()  # 先清一下cookie
+        # session.cookies.clear()  # 先清一下cookie
         r1 = session.get(host + '/eams/login.action')
         # logging.debug(r1.text)
-        captcha_resp = session.get(host + '/eams/captcha/image.action')  # Captcha 验证码图片
+        # captcha_resp = session.get(host + '/eams/captcha/image.action')  # Captcha 验证码图片
 
         temp_token_match = re.compile(r"CryptoJS\.SHA1\(\'([0-9a-zA-Z\-]*)\'")
         # 搜索密钥
@@ -77,11 +79,15 @@ def aao_login(stuID, stuPwd, retry_cnt=3):
             # logging.debug(postPwd)  # 结果是40位字符串
 
             # Captcha 验证码 # Fix Issue #13 bug, but only for Windows.
-            captcha_img = Image.open(BytesIO(captcha_resp.content))
-            captcha_img.show()  # show the captcha
+            # captcha_img = Image.open(BytesIO(captcha_resp.content))
+            # captcha_img.show()  # show the captcha
+
+            # img= ImageTk.PhotoImage(captcha_img)
+            # label_img = tkinter.ttk.Label(window, image = img).place(x = 560, y = 2)
+
             # text = image_to_string(captcha_img)  # 前提是装了Tesseract-OCR，可以试试自动识别
             # print(text)
-            captcha_str = input('Please input the captcha:')
+            # captcha_str = input('Please input the captcha:')
 
             # 开始登录啦
             postData = {'username': stuID, 'password': postPwd, 'captcha_response': captcha_str}
